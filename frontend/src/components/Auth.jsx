@@ -27,7 +27,7 @@ const Auth = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/auth/register', { 
+      await axios.post('https://local-helper-d3ih.onrender.com/api/auth/register', { 
         ...formData,
         role: role 
       });
@@ -44,7 +44,7 @@ const Auth = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/verify-otp', {
+      const res = await axios.post('https://local-helper-d3ih.onrender.com/api/auth/verify-otp', {
         email: formData.email,
         otp: formData.otp
       });
@@ -61,7 +61,7 @@ const Auth = ({ onLoginSuccess }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      const res = await axios.post('https://local-helper-d3ih.onrender.com/api/auth/login', {
         email: formData.email,
         password: formData.password
       });

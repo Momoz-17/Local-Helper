@@ -23,8 +23,8 @@ const ProviderProfile = ({ user }) => {
       if (!user?._id) return;
       try {
         const [tasksRes, statsRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/tasks/my-tasks', { withCredentials: true }),
-          axios.get(`http://localhost:5000/api/users/${user._id}/stats`)
+          axios.get('https://local-helper-d3ih.onrender.com/api/tasks/my-tasks', { withCredentials: true }),
+          axios.get(`https://local-helper-d3ih.onrender.com/api/users/${user._id}/stats`)
         ]);
         setMyTasks(tasksRes.data);
         setStats(statsRes.data);
@@ -40,7 +40,7 @@ const ProviderProfile = ({ user }) => {
   const handleComplete = async (taskId) => {
     if (!window.confirm("Mark this task as finished?")) return;
     try {
-      await axios.patch(`http://localhost:5000/api/tasks/${taskId}/complete`, {}, { withCredentials: true });
+      await axios.patch(`https://local-helper-d3ih.onrender.com/api/tasks/${taskId}/complete`, {}, { withCredentials: true });
       setMyTasks(prev => prev.map(t => t._id === taskId ? { ...t, status: 'completed', updatedAt: new Date() } : t));
     } catch (err) {
       alert("Error updating task status.");

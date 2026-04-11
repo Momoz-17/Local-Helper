@@ -11,7 +11,7 @@ const NearbyTasks = () => {
   const fetchTasks = async (searchCoords) => {
     setIsSearching(true);
     try {
-      const res = await axios.get('http://localhost:5000/api/tasks/nearby', {
+      const res = await axios.get('https://local-helper-d3ih.onrender.com/api/tasks/nearby', {
         params: { 
           lat: searchCoords.lat, 
           lng: searchCoords.lng,

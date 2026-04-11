@@ -15,7 +15,7 @@ const AcceptTaskButton = ({ taskId, currentUser, onTaskAccepted }) => {
     try {
       // Added withCredentials: true to ensure the session cookie is sent
       const response = await axios.patch(
-        `http://localhost:5000/api/tasks/${taskId}/accept`, 
+        `https://local-helper-d3ih.onrender.com/api/tasks/${taskId}/accept`, 
         {}, 
         { withCredentials: true }
       );

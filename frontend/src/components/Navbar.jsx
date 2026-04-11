@@ -12,7 +12,7 @@ const Navbar = ({ user, onLogout }) => {
     const checkNotifications = async () => {
       if (user?.role === 'seeker') {
         try {
-          const res = await axios.get('http://localhost:5000/api/tasks/my-requests', { withCredentials: true });
+          const res = await axios.get('https://local-helper-d3ih.onrender.com/api/tasks/my-requests', { withCredentials: true });
           const acceptedTasks = res.data.filter(t => t.status === 'accepted');
           setNotifications(acceptedTasks);
         } catch (err) {

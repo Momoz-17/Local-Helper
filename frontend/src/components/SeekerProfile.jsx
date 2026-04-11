@@ -8,7 +8,7 @@ const SeekerProfile = ({ user }) => {
 
   const fetchMyRequests = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/tasks/my-requests', { 
+      const res = await axios.get('https://local-helper-d3ih.onrender.com/api/tasks/my-requests', { 
         withCredentials: true 
       });
       setMyRequests(res.data);
@@ -27,7 +27,7 @@ const SeekerProfile = ({ user }) => {
     if (!window.confirm("Confirm that you have received the help requested?")) return;
     
     try {
-      await axios.patch(`http://localhost:5000/api/tasks/${taskId}/complete`, {}, { 
+      await axios.patch(`https://local-helper-d3ih.onrender.com/api/tasks/${taskId}/complete`, {}, { 
         withCredentials: true 
       });
       fetchMyRequests();
