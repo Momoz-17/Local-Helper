@@ -9,7 +9,7 @@ const app = express();
 // --- 1. Middleware Configuration ---
 app.use(cors({
   // Ensure this matches your Vite frontend URL exactly
-  origin: process.env.FRONTEND_URL || 'https://local-helper-1.onrender.com', 
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
   credentials: true 
 }));
 

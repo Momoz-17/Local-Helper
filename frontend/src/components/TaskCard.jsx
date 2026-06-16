@@ -22,7 +22,8 @@ const TaskCard = ({ task, currentUser, onAccept, onEdit, onDelete }) => {
     if (rating === 0) return alert("Please select a star rating first.");
     setIsUpdating(true);
     try {
-      await axios.post(`https://local-helper-d3ih.onrender.com/api/tasks/${task._id}/rate`, {
+      // Updated URL to localhost for development environment
+      await axios.post(`http://localhost:5000/api/tasks/${task._id}/rate`, {
         rating,
         feedback
       }, { withCredentials: true });

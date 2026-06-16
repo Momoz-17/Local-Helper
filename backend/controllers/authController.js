@@ -3,12 +3,19 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 
-// Configure Nodemailer
+// Configure Nodemailer with strict local development configurations
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Upgrades to secure TLS connection automatically via STARTTLS
   auth: {
     user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS
+    pass: process.env.EMAIL_PASS // Your 16-character Google App Password (no spaces)
+  },
+  tls: {
+    // Prevents local machine network SSL certificate blocks from failing email dispatch
+    rejectUnauthorized: false
   }
 });
 
@@ -19,7 +26,7 @@ const setTokenCookie = (res, userId) => {
   res.cookie('token', token, {
     httpOnly: true, 
     secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax', // Changed from strict to 'lax' to ensure cookie persists during redirects
+    sameSite: 'lax', 
     maxAge: 86400000 
   });
 };
@@ -28,8 +35,9 @@ const setTokenCookie = (res, userId) => {
 exports.register = async (req, res) => {
   try {
     const { name, email, password, role, phone, address } = req.body;
+    const cleanEmail = email.trim().toLowerCase();
     
-    let user = await User.findOne({ email });
+    let user = await User.findOne({ email: cleanEmail });
     if (user && user.isVerified) return res.status(400).json({ message: "User already exists" });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -46,7 +54,7 @@ exports.register = async (req, res) => {
     } else {
       user = new User({ 
         name, 
-        email, 
+        email: cleanEmail, 
         password: hashedPassword, 
         role, 
         phone,
@@ -58,9 +66,10 @@ exports.register = async (req, res) => {
 
     await user.save();
 
+    // Dispatches OTP directly to user inbox
     await transporter.sendMail({
-      from: `"Community Connect" <${process.env.EMAIL_USER}>`,
-      to: email,
+      from: process.env.EMAIL_USER,
+      to: cleanEmail,
       subject: "Your Community Connect Verification Code",
       text: `Your OTP is: ${otp}. It expires in 10 minutes.`
     });
@@ -76,7 +85,8 @@ exports.register = async (req, res) => {
 exports.verifyOTP = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const user = await User.findOne({ email, otp });
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: cleanEmail, otp: otp.trim() });
 
     if (!user) return res.status(400).json({ message: "Invalid OTP or user not found" });
 
@@ -91,7 +101,6 @@ exports.verifyOTP = async (req, res) => {
 
     setTokenCookie(res, user._id);
 
-    // Added 'id' to the response to match frontend expectations
     res.status(200).json({ 
       user: { 
         id: user._id,
@@ -111,12 +120,22 @@ exports.verifyOTP = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const cleanEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: cleanEmail });
 
-    if (!user || !user.isVerified) return res.status(400).json({ message: "User not found or unverified" });
+    // Explicit validation check separates users not found from those who are unverified
+    if (!user) return res.status(404).json({ message: "User account not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    // Triggers custom 403 response catch block on the frontend to redirect seamlessly
+    if (!user.isVerified) {
+      return res.status(403).json({ 
+        isVerified: false, 
+        message: "Account unverified. An OTP has been generated, redirecting to verification page..." 
+      });
+    }
 
     setTokenCookie(res, user._id);
 
@@ -148,7 +167,6 @@ exports.logout = (req, res) => {
 // 5. GET CURRENT USER
 exports.getMe = async (req, res) => {
   try {
-    // req.user is already populated by your protect middleware
     if (!req.user) return res.status(401).json({ message: "User not found" });
 
     res.status(200).json({

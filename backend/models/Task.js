@@ -10,7 +10,6 @@ const TaskSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  // Relational references
   postedBy: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 
@@ -21,13 +20,11 @@ const TaskSchema = new mongoose.Schema({
     ref: 'User', 
     default: null 
   }, 
-  // Task State
   status: { 
     type: String, 
     enum: ['open', 'accepted', 'completed'], 
     default: 'open' 
   },
-  // Geospatial Data (GeoJSON)
   location: {
     type: { 
       type: String, 
@@ -36,9 +33,8 @@ const TaskSchema = new mongoose.Schema({
       default: 'Point' 
     },
     coordinates: { 
-      type: [Number], // [longitude, latitude]
+      type: [Number], 
       required: true,
-      // Validation to ensure correct GeoJSON format
       validate: {
         validator: function(v) {
           return v.length === 2;
@@ -51,7 +47,6 @@ const TaskSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  // Review System
   rating: { 
     type: Number, 
     min: 1, 
@@ -66,7 +61,6 @@ const TaskSchema = new mongoose.Schema({
   timestamps: true 
 });
 
-// CRITICAL: This allows you to find tasks within X km of a user
 TaskSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Task', TaskSchema);
