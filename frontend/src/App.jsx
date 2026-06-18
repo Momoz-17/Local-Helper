@@ -9,21 +9,16 @@ import SeekerProfile from './components/SeekerProfile';
 import Auth from './components/Auth';
 import NearbyTasks from './pages/NearbyTasks';
 
-// Global configurations remain set for cross-origin session cookies
 axios.defaults.withCredentials = true;
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Define live Render backend base endpoint
-  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
-
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        // Swapped out localhost for the live production Render backend address
-        const res = await axios.get(`${BASE_URL}/auth/me`);
+        const res = await axios.get('http://localhost:5000/api/auth/me');
         setUser(res.data.user);
       } catch (err) {
         setUser(null);
@@ -36,8 +31,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      // Swapped out localhost for the live production Render backend address
-      await axios.post(`${BASE_URL}/auth/logout`);
+      await axios.post('http://localhost:5000/api/auth/logout');
       setUser(null);
     } catch (err) {
       console.error("Logout failed", err);

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-// Maintain cookie persistence across requests
+// Set global axios defaults to maintain cookie persistence across requests
 axios.defaults.withCredentials = true;
 
 const Auth = ({ onLoginSuccess }) => {
@@ -10,8 +10,8 @@ const Auth = ({ onLoginSuccess }) => {
   const [step, setStep] = useState('form'); 
   const [loading, setLoading] = useState(false);
   
-  // Direct live Render backend URL endpoint
-  const API_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
+  // Base API URL for local development
+  const API_URL = 'http://localhost:5000/api';
 
   const [formData, setFormData] = useState({
     name: '',
@@ -70,6 +70,7 @@ const Auth = ({ onLoginSuccess }) => {
       });
       onLoginSuccess(res.data.user);
     } catch (err) {
+      // Captures unverified status codes to shift the UI view to the OTP form
       if (err.response && err.response.status === 403 && err.response.data.isVerified === false) {
         alert(err.response.data.message);
         setStep('otp'); 

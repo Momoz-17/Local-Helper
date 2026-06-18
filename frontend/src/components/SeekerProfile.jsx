@@ -6,13 +6,10 @@ const SeekerProfile = ({ user }) => {
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Direct live Render backend base URL
-  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
-
   const fetchMyRequests = async () => {
     try {
-      // Updated endpoint to use live backend
-      const res = await axios.get(`${BASE_URL}/tasks/my-requests`, { 
+      // Updated endpoint to localhost for local development
+      const res = await axios.get('http://localhost:5000/api/tasks/my-requests', { 
         withCredentials: true 
       });
       setMyRequests(res.data);
@@ -31,8 +28,8 @@ const SeekerProfile = ({ user }) => {
     if (!window.confirm("Confirm that you have received the help requested?")) return;
     
     try {
-      // Updated endpoint to use live backend
-      await axios.patch(`${BASE_URL}/tasks/${taskId}/complete`, {}, { 
+      // Updated endpoint to localhost for local development
+      await axios.patch(`http://localhost:5000/api/tasks/${taskId}/complete`, {}, { 
         withCredentials: true 
       });
       fetchMyRequests();

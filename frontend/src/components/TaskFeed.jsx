@@ -9,17 +9,14 @@ const TaskFeed = ({ currentUser }) => {
   const [editingTask, setEditingTask] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', description: '' });
 
-  // Direct live Render backend base URL URL
-  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
-
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const fetchTasks = async () => {
     try {
-      // Hardcoded direct live Render backend URL endpoint
-      const response = await axios.get(`${BASE_URL}/tasks`);
+      // Updated URL to localhost for development environment
+      const response = await axios.get('http://localhost:5000/api/tasks');
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -30,8 +27,8 @@ const TaskFeed = ({ currentUser }) => {
 
   const handleAcceptTask = async (taskId) => {
     try {
-      // Hardcoded direct live Render backend URL endpoint
-      const response = await axios.patch(`${BASE_URL}/tasks/${taskId}/accept`, {}, { withCredentials: true });
+      // Updated URL to localhost for development environment
+      const response = await axios.patch(`http://localhost:5000/api/tasks/${taskId}/accept`, {}, { withCredentials: true });
       setTasks(prev => prev.map(t => t._id === taskId ? response.data : t));
     } catch (error) {
       alert(error.response?.data?.message || "Could not accept task.");
@@ -41,8 +38,8 @@ const TaskFeed = ({ currentUser }) => {
   const handleDeleteTask = async (taskId) => {
     if (!window.confirm("Delete this request forever?")) return;
     try {
-      // Hardcoded direct live Render backend URL endpoint
-      await axios.delete(`${BASE_URL}/tasks/${taskId}`, { withCredentials: true });
+      // Updated URL to localhost for development environment
+      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, { withCredentials: true });
       setTasks(prev => prev.filter(task => task._id !== taskId));
     } catch (error) {
       alert(error.response?.data?.message || "Failed to delete task");
@@ -57,8 +54,8 @@ const TaskFeed = ({ currentUser }) => {
   const handleUpdateTask = async (e) => {
     e.preventDefault();
     try {
-      // Hardcoded direct live Render backend URL endpoint
-      const response = await axios.put(`${BASE_URL}/tasks/${editingTask}`, editForm, { withCredentials: true });
+      // Updated URL to localhost for development environment
+      const response = await axios.put(`http://localhost:5000/api/tasks/${editingTask}`, editForm, { withCredentials: true });
       setTasks(prev => prev.map(t => t._id === editingTask ? response.data : t));
       setEditingTask(null);
     } catch (error) {

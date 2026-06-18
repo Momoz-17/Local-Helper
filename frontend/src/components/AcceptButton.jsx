@@ -13,15 +13,15 @@ const AcceptTaskButton = ({ taskId, currentUser, onTaskAccepted }) => {
     
     setLoading(true);
     try {
-      // Hardcoded live Render backend URL
+      // Changed the URL from Render to localhost for local development
       const response = await axios.patch(
-        `https://finance-tracker-backend-bxcf.onrender.com/api/tasks/${taskId}/accept`, 
+        `http://localhost:5000/api/tasks/${taskId}/accept`, 
         {}, 
         { withCredentials: true }
       );
       
       if (onTaskAccepted) {
-        onTaskAccepted(response.data.task); 
+        onTaskAccepted(response.data.task); // Pass the updated task back to the parent
       }
       alert("Task successfully accepted!");
     } catch (err) {
