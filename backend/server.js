@@ -9,7 +9,7 @@ const app = express();
 // --- 1. Middleware Configuration ---
 app.use(cors({
   // Direct production URL fallback ensuring cross-origin cookies work smoothly on Render
-  origin: process.env.FRONTEND_URL || 'https://finance-tracker-frontend-7d2q.onrender.com', 
+  origin: process.env.FRONTEND_URL || 'https://finance-tracker-frontend-d9gc.onrender.com', 
   credentials: true 
 }));
 
