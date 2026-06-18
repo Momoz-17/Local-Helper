@@ -23,7 +23,7 @@ const TaskCard = ({ task, currentUser, onAccept, onEdit, onDelete }) => {
     setIsUpdating(true);
     try {
       // Hardcoded direct live Render backend URL endpoint
-      await axios.post(`https://finance-tracker-backend-u3qd.onrender.com/api/tasks/${task._id}/rate`, {
+      await axios.post(`https://finance-tracker-backend-bxcf.onrender.com/api/tasks/${task._id}/rate`, {
         rating,
         feedback
       }, { withCredentials: true });

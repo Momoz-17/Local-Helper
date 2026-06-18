@@ -17,7 +17,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   // Define live Render backend base endpoint
-  const BASE_URL = 'https://finance-tracker-backend-u3qd.onrender.com/api';
+  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
 
   useEffect(() => {
     const checkAuth = async () => {

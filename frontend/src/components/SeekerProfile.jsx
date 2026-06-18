@@ -7,7 +7,7 @@ const SeekerProfile = ({ user }) => {
   const [loading, setLoading] = useState(true);
 
   // Direct live Render backend base URL
-  const BASE_URL = 'https://finance-tracker-backend-u3qd.onrender.com/api';
+  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
 
   const fetchMyRequests = async () => {
     try {

@@ -11,7 +11,7 @@ const Auth = ({ onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
   
   // Direct live Render backend URL endpoint
-  const API_URL = 'https://finance-tracker-backend-u3qd.onrender.com/api';
+  const API_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
 
   const [formData, setFormData] = useState({
     name: '',

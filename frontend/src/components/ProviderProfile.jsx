@@ -8,7 +8,7 @@ const ProviderProfile = () => {
   const [error, setError] = useState(null);
 
   // Direct live Render backend base URL
-  const BASE_URL = 'https://finance-tracker-backend-u3qd.onrender.com/api';
+  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
 
   useEffect(() => {
     const fetchProviderDashboardData = async () => {

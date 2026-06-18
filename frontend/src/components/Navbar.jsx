@@ -13,7 +13,7 @@ const Navbar = ({ user, onLogout }) => {
       if (user?.role === 'seeker') {
         try {
           // Hardcoded direct live Render backend URL endpoint
-          const res = await axios.get('https://finance-tracker-backend-u3qd.onrender.com/api/tasks/my-requests', { withCredentials: true });
+          const res = await axios.get('https://finance-tracker-backend-bxcf.onrender.com/api/tasks/my-requests', { withCredentials: true });
           const acceptedTasks = res.data.filter(t => t.status === 'accepted');
           setNotifications(acceptedTasks);
         } catch (err) {

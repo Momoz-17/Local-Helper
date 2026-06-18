@@ -10,7 +10,7 @@ const TaskFeed = ({ currentUser }) => {
   const [editForm, setEditForm] = useState({ title: '', description: '' });
 
   // Direct live Render backend base URL URL
-  const BASE_URL = 'https://finance-tracker-backend-u3qd.onrender.com/api';
+  const BASE_URL = 'https://finance-tracker-backend-bxcf.onrender.com/api';
 
   useEffect(() => {
     fetchTasks();

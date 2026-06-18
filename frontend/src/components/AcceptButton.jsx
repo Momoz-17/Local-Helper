@@ -15,7 +15,7 @@ const AcceptTaskButton = ({ taskId, currentUser, onTaskAccepted }) => {
     try {
       // Hardcoded live Render backend URL
       const response = await axios.patch(
-        `https://finance-tracker-backend-u3qd.onrender.com/api/tasks/${taskId}/accept`, 
+        `https://finance-tracker-backend-bxcf.onrender.com/api/tasks/${taskId}/accept`, 
         {}, 
         { withCredentials: true }
       );
