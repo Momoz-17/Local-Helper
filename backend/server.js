@@ -8,8 +8,8 @@ const app = express();
 
 // --- 1. Middleware Configuration ---
 app.use(cors({
-  // Ensure this matches your Vite frontend URL exactly
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
+  // Direct production URL fallback ensuring cross-origin cookies work smoothly on Render
+  origin: process.env.FRONTEND_URL || 'https://finance-tracker-frontend-7d2q.onrender.com', 
   credentials: true 
 }));
 
@@ -17,6 +17,11 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+
+// Trust proxy header — Crucial for reading cookies securely when deployed on Render behind a reverse proxy
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // --- 2. Route Definitions ---
 const authRoutes = require('./routes/authRoutes');
@@ -61,7 +66,7 @@ app.use((err, req, res, next) => {
 // --- 6. Server Initialization ---
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on http://localhost:${PORT}`);
+  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
 // Handle unhandled promise rejections (e.g. secret keys missing)

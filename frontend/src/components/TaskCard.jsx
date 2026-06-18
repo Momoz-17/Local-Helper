@@ -22,8 +22,8 @@ const TaskCard = ({ task, currentUser, onAccept, onEdit, onDelete }) => {
     if (rating === 0) return alert("Please select a star rating first.");
     setIsUpdating(true);
     try {
-      // Updated URL to localhost for development environment
-      await axios.post(`http://localhost:5000/api/tasks/${task._id}/rate`, {
+      // Hardcoded direct live Render backend URL endpoint
+      await axios.post(`https://finance-tracker-backend-u3qd.onrender.com/api/tasks/${task._id}/rate`, {
         rating,
         feedback
       }, { withCredentials: true });

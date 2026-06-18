@@ -13,8 +13,8 @@ const TaskRating = ({ taskId, onComplete }) => {
     
     setSubmitting(true);
     try {
-      // Updated URL to localhost for development environment
-      await axios.post(`http://localhost:5000/api/tasks/${taskId}/rate`, { 
+      // Swapped out localhost for the live production Render backend address
+      await axios.post(`https://finance-tracker-backend-u3qd.onrender.com/api/tasks/${taskId}/rate`, { 
         rating, 
         feedback 
       }, { withCredentials: true });

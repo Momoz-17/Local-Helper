@@ -7,19 +7,22 @@ const ProviderProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Direct live Render backend base URL
+  const BASE_URL = 'https://finance-tracker-backend-u3qd.onrender.com/api';
+
   useEffect(() => {
     const fetchProviderDashboardData = async () => {
       setLoading(true);
       setError(null);
       try {
-        // 1. Fetch running tasks accepted by this provider
-        const tasksResponse = await axios.get('http://localhost:5000/api/tasks/my-tasks', {
+        // 1. Fetch running tasks accepted by this provider using live backend
+        const tasksResponse = await axios.get(`${BASE_URL}/tasks/my-tasks`, {
           withCredentials: true
         });
         setTasks(tasksResponse.data);
 
-        // 2. FIXED: Fetch aggregation statistics from the correct /stats endpoint
-        const statsResponse = await axios.get('http://localhost:5000/api/tasks/stats', { 
+        // 2. Fetch aggregation statistics from live backend
+        const statsResponse = await axios.get(`${BASE_URL}/tasks/stats`, { 
           withCredentials: true 
         }); 
         

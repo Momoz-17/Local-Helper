@@ -9,13 +9,16 @@ const {
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
-// Public Routes
+// --- Public Routes ---
 router.post('/register', register);
 router.post('/verify-otp', verifyOTP);
 router.post('/login', login);
-router.post('/logout', logout);
 
-// Private Route: Used by the frontend to restore session on page refresh
+// --- Protected Routes ---
+// Moving logout under 'protect' ensures you can securely read the token before clearing it
+router.post('/logout', protect, logout);
+
+// Session recovery route for frontend initial mounting / refreshes
 router.get('/me', protect, getMe);
 
 module.exports = router;

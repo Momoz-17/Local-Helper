@@ -22,11 +22,12 @@ const transporter = nodemailer.createTransport({
 // Helper function to set the secure cookie
 const setTokenCookie = (res, userId) => {
   const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
+  const isProduction = process.env.NODE_ENV === 'production';
   
   res.cookie('token', token, {
     httpOnly: true, 
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax', 
+    secure: isProduction, // Must be true on HTTPS (Render)
+    sameSite: isProduction ? 'none' : 'lax', // 'none' is mandatory for cross-origin cookies on custom subdomains
     maxAge: 86400000 
   });
 };
@@ -156,11 +157,15 @@ exports.login = async (req, res) => {
 
 // 4. LOGOUT
 exports.logout = (req, res) => {
-  res.clearCookie('token', {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  res.cookie('token', '', {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    expires: new Date(0), // Instantly invalidates cookie context
+    secure: isProduction,
+    sameSite: isProduction ? 'none' : 'lax' // Must exactly match how the cookie was initially signed
   });
+  
   res.status(200).json({ message: "Logged out successfully" });
 };
 

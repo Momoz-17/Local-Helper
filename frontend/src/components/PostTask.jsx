@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from 'react-serif';
 import { useNavigate } from 'react-router-dom';
 
 const PostTask = () => {
@@ -32,8 +32,8 @@ const PostTask = () => {
         latitude: coords.lat
       };
       
-      // Updated URL to localhost for development environment
-      await axios.post('http://localhost:5000/api/tasks', payload, { withCredentials: true });
+      // Hardcoded direct live Render backend URL endpoint
+      await axios.post('https://finance-tracker-backend-u3qd.onrender.com/api/tasks', payload, { withCredentials: true });
       navigate('/seeker-profile'); 
     } catch (err) {
       alert(err.response?.data?.error || "Post failed. Please try again.");
