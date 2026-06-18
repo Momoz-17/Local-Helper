@@ -8,9 +8,13 @@ const app = express();
 
 // --- 1. Middleware Configuration ---
 app.use(cors({
-  // Direct production URL fallback ensuring cross-origin cookies work smoothly on Render
-  origin: process.env.FRONTEND_URL || 'https://finance-tracker-frontend-d9gc.onrender.com', 
-  credentials: true 
+  // Dynamically uses your environment variable or falls back to your live Render frontend & local development server
+  origin: process.env.FRONTEND_URL 
+    ? process.env.FRONTEND_URL 
+    : ['https://finance-tracker-frontend-7d2q.onrender.com', 'http://localhost:5173'], 
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Increased limit slightly for potential image base64 strings in profiles
