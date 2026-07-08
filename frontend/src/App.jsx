@@ -8,6 +8,7 @@ import ProviderProfile from './components/ProviderProfile';
 import SeekerProfile from './components/SeekerProfile';
 import Auth from './components/Auth';
 import NearbyTasks from './pages/NearbyTasks';
+import Home from './pages/Home'; // Import the new home page
 
 axios.defaults.withCredentials = true;
 
@@ -38,6 +39,12 @@ function App() {
     }
   };
 
+  const getRoleRedirectPath = (role) => {
+    if (role === 'provider') return '/feed';
+    if (role === 'seeker') return '/seeker-profile';
+    return '/';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-white">
@@ -47,51 +54,59 @@ function App() {
     );
   }
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-        <Auth onLoginSuccess={(userData) => setUser(userData)} />
-      </div>
-    );
-  }
-
   return (
     <Router>
       <div className="min-h-screen bg-white">
+        {/* Navbar remains global and can change options depending on if the user is logged in */}
         <Navbar user={user} onLogout={handleLogout} />
         
         <main className="pt-8 pb-24 px-4">
           <Routes>
-            {/* Shared Route */}
+            {/* PUBLIC ROUTES (Accessible to anyone) */}
+            <Route path="/" element={<Home user={user} />} />
             <Route path="/nearby-tasks" element={<NearbyTasks />} />
-
-            {/* Dashboard Redirect Logic */}
+            
+            {/* AUTH ENTRY ROUTE (Redirects to dashboard home if already authenticated) */}
             <Route 
-              path="/" 
+              path="/login" 
               element={
-                user.role === 'provider' 
+                !user ? (
+                  <div className="min-h-[80vh] flex items-center justify-center">
+                    <Auth onLoginSuccess={(userData) => setUser(userData)} />
+                  </div>
+                ) : (
+                  <Navigate to={getRoleRedirectPath(user.role)} replace />
+                )
+              } 
+            />
+
+            {/* SHARED/PROVIDER DASHBOARD FEED */}
+            <Route 
+              path="/feed" 
+              element={
+                user && user.role === 'provider' 
                   ? <TaskFeed currentUser={user} /> 
-                  : <Navigate to="/seeker-profile" replace />
+                  : <Navigate to={user ? getRoleRedirectPath(user.role) : '/login'} replace />
               } 
             />
             
-            {/* Seeker Exclusive Routes */}
+            {/* SEEKER EXCLUSIVE ROUTES */}
             <Route 
               path="/post" 
-              element={user.role === 'seeker' ? <PostTask currentUser={user} /> : <Navigate to="/" />} 
+              element={user && user.role === 'seeker' ? <PostTask currentUser={user} /> : <Navigate to={user ? getRoleRedirectPath(user.role) : '/login'} replace />} 
             />
             <Route 
               path="/seeker-profile" 
-              element={user.role === 'seeker' ? <SeekerProfile user={user} /> : <Navigate to="/" />} 
+              element={user && user.role === 'seeker' ? <SeekerProfile user={user} /> : <Navigate to={user ? getRoleRedirectPath(user.role) : '/login'} replace />} 
             />
 
-            {/* Provider Exclusive Routes */}
+            {/* PROVIDER EXCLUSIVE ROUTES */}
             <Route 
               path="/provider-profile" 
-              element={user.role === 'provider' ? <ProviderProfile user={user} /> : <Navigate to="/" />} 
+              element={user && user.role === 'provider' ? <ProviderProfile user={user} /> : <Navigate to={user ? getRoleRedirectPath(user.role) : '/login'} replace />} 
             />
 
-            {/* Global Redirect */}
+            {/* GLOBAL REDIRECT FALLBACK */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
