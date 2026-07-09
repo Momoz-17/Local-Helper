@@ -37,7 +37,13 @@ const PostTask = () => {
       await axios.post('https://local-helper-backend.onrender.com/api/tasks', payload, { withCredentials: true });
       navigate('/seeker-profile'); 
     } catch (err) {
-      alert(err.response?.data?.error || "Failed to broadcast operational claim parameters.");
+      // Backend sends { message: ... } (and sometimes { error: ... }) -
+      // check both so the real reason shows instead of the generic fallback.
+      alert(
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        "Failed to broadcast operational claim parameters."
+      );
     } finally {
       setLoading(false);
     }

@@ -23,10 +23,14 @@ const transporter = nodemailer.createTransport({
 const setTokenCookie = (res, userId) => {
   const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
   
+  const isProd = process.env.NODE_ENV === 'production';
   res.cookie('token', token, {
-    httpOnly: true, 
-    secure: process.env.NODE_ENV === 'production', 
-    sameSite: 'lax', 
+    httpOnly: true,
+    // Frontend and backend live on different onrender.com subdomains,
+    // which browsers treat as cross-site. Cross-site cookies REQUIRE
+    // sameSite: 'none' + secure: true, or they are never sent back.
+    secure: isProd ? true : false,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 86400000 
   });
 };
@@ -156,10 +160,13 @@ exports.login = async (req, res) => {
 
 // 4. LOGOUT
 exports.logout = (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
   res.clearCookie('token', {
     httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production'
+    // Must match the attributes used when the cookie was set,
+    // otherwise the browser won't recognize it as the same cookie to clear.
+    sameSite: isProd ? 'none' : 'lax',
+    secure: isProd ? true : false
   });
   res.status(200).json({ message: "Logged out successfully" });
 };

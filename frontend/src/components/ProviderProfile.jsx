@@ -26,7 +26,13 @@ const ProviderProfile = () => {
         setStats(statsResponse.data);
       } catch (err) {
         console.error("Dashboard fetching failure:", err);
-        setError("Failed to assemble profile elements.");
+        // Backend sends { message: ... } (and sometimes { error: ... }) -
+        // check both so the real reason shows instead of the generic fallback.
+        setError(
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Failed to assemble profile elements."
+        );
       } finally {
         setLoading(false);
       }
