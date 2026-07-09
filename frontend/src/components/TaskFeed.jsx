@@ -26,7 +26,7 @@ const TaskFeed = ({ currentUser }) => {
     setLoading(true);
     setGeoError(null);
     try {
-      const response = await axios.get('http://localhost:5000/api/tasks', { withCredentials: true });
+      const response = await axios.get('https://local-helper-backend.onrender.com/api/tasks', { withCredentials: true });
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching global tasks:", error);
@@ -51,7 +51,7 @@ const TaskFeed = ({ currentUser }) => {
           const { longitude, latitude } = position.coords;
           // Calls your backend location endpoint with coordinates
           const response = await axios.get(
-            `http://localhost:5000/api/tasks/nearby?lng=${longitude}&lat=${latitude}`, 
+            `https://local-helper-backend.onrender.com/api/tasks/nearby?lng=${longitude}&lat=${latitude}`, 
             { withCredentials: true }
           );
           setTasks(response.data);
@@ -74,7 +74,7 @@ const TaskFeed = ({ currentUser }) => {
 
   const handleAcceptTask = async (taskId) => {
     try {
-      const response = await axios.patch(`http://localhost:5000/api/tasks/${taskId}/accept`, {}, { withCredentials: true });
+      const response = await axios.patch(`https://local-helper-backend.onrender.com/api/tasks/${taskId}/accept`, {}, { withCredentials: true });
       setTasks(prev => prev.map(t => t._id === taskId ? response.data : t));
     } catch (error) {
       alert(error.response?.data?.message || "Could not accept task.");
@@ -84,7 +84,7 @@ const TaskFeed = ({ currentUser }) => {
   const handleDeleteTask = async (taskId) => {
     if (!window.confirm("Delete this request forever?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, { withCredentials: true });
+      await axios.delete(`https://local-helper-backend.onrender.com/api/tasks/${taskId}`, { withCredentials: true });
       setTasks(prev => prev.filter(task => task._id !== taskId));
     } catch (error) {
       alert(error.response?.data?.message || "Failed to delete task");
@@ -99,7 +99,7 @@ const TaskFeed = ({ currentUser }) => {
   const handleUpdateTask = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:5000/api/tasks/${editingTask}`, editForm, { withCredentials: true });
+      const response = await axios.put(`https://local-helper-backend.onrender.com/api/tasks/${editingTask}`, editForm, { withCredentials: true });
       setTasks(prev => prev.map(t => t._id === editingTask ? response.data : t));
       setEditingTask(null);
     } catch (error) {

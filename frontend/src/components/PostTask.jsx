@@ -34,7 +34,7 @@ const PostTask = () => {
         latitude: coords.lat
       };
       
-      await axios.post('http://localhost:5000/api/tasks', payload, { withCredentials: true });
+      await axios.post('https://local-helper-backend.onrender.com/api/tasks', payload, { withCredentials: true });
       navigate('/seeker-profile'); 
     } catch (err) {
       alert(err.response?.data?.error || "Failed to broadcast operational claim parameters.");

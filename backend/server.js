@@ -3,13 +3,17 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const dns = require('dns');
+
+dns.setDefaultResultOrder('ipv4first'); // Ensures IPv4 is prioritized over IPv6 for DNS resolution
+dns.setServers(["1.1.1.1","8.8.8.8"]); // Use Cloudflare DNS for faster resolution
 
 const app = express();
 
 // --- 1. Middleware Configuration ---
 app.use(cors({
   // Ensure this matches your Vite frontend URL exactly
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173', 
+  origin: process.env.FRONTEND_URL || 'https://local-helper-bomy.onrender.com', 
   credentials: true 
 }));
 
@@ -61,7 +65,7 @@ app.use((err, req, res, next) => {
 // --- 6. Server Initialization ---
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on http://localhost:${PORT}`);
+  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on https://local-helper-bomy.onrender.com`); 
 });
 
 // Handle unhandled promise rejections (e.g. secret keys missing)

@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/auth/me');
+        const res = await axios.get('https://local-helper-backend.onrender.com/api/auth/me');
         setUser(res.data.user);
       } catch (err) {
         setUser(null);
@@ -32,7 +32,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:5000/api/auth/logout');
+      await axios.post('https://local-helper-backend.onrender.com/api/auth/logout');
       setUser(null);
     } catch (err) {
       console.error("Logout failed", err);

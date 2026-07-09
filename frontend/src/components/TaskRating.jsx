@@ -14,7 +14,7 @@ const TaskRating = ({ taskId, onComplete }) => {
     setSubmitting(true);
     try {
       // Updated URL to localhost for development environment
-      await axios.post(`http://localhost:5000/api/tasks/${taskId}/rate`, { 
+      await axios.post(`https://local-helper-backend.onrender.com/api/tasks/${taskId}/rate`, { 
         rating, 
         feedback 
       }, { withCredentials: true });

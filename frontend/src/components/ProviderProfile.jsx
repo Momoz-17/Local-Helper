@@ -14,12 +14,12 @@ const ProviderProfile = () => {
       setLoading(true);
       setError(null);
       try {
-        const tasksResponse = await axios.get('http://localhost:5000/api/tasks/my-tasks', {
+        const tasksResponse = await axios.get('https://local-helper-backend.onrender.com/api/tasks/my-tasks', {
           withCredentials: true
         });
         setTasks(tasksResponse.data);
 
-        const statsResponse = await axios.get('http://localhost:5000/api/tasks/stats', { 
+        const statsResponse = await axios.get('https://local-helper-backend.onrender.com/api/tasks/stats', { 
           withCredentials: true 
         }); 
         

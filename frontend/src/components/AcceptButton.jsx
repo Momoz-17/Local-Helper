@@ -15,7 +15,7 @@ const AcceptTaskButton = ({ taskId, currentUser, onTaskAccepted }) => {
     try {
       // Changed the URL from Render to localhost for local development
       const response = await axios.patch(
-        `http://localhost:5000/api/tasks/${taskId}/accept`, 
+        `https://local-helper-backend.onrender.com/api/tasks/${taskId}/accept`, 
         {}, 
         { withCredentials: true }
       );

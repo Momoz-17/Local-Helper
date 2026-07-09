@@ -13,7 +13,7 @@ const Auth = ({ onLoginSuccess }) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   
   // Base API configuration for the local development server context
-  const API_URL = 'http://localhost:5000/api';
+  const API_URL = 'https://local-helper-backend.onrender.com/api';
 
   const [formData, setFormData] = useState({
     name: '',
