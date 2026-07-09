@@ -5,19 +5,18 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const dns = require('dns');
 
-dns.setDefaultResultOrder('ipv4first'); // Ensures IPv4 is prioritized over IPv6 for DNS resolution
-dns.setServers(["1.1.1.1","8.8.8.8"]); // Use Cloudflare DNS for faster resolution
+dns.setDefaultResultOrder('ipv4first'); 
+dns.setServers(["1.1.1.1", "8.8.8.8"]); 
 
 const app = express();
 
 // --- 1. Middleware Configuration ---
 app.use(cors({
-  // Ensure this matches your Vite frontend URL exactly
-  origin: process.env.FRONTEND_URL || 'https://local-helper-bomy.onrender.com', 
+  // Locked strictly to your live production deployment static URL
+  origin: 'https://local-helper-bomy.onrender.com', 
   credentials: true 
 }));
 
-// Increased limit slightly for potential image base64 strings in profiles
 app.use(express.json({ limit: '10mb' })); 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -36,14 +35,12 @@ const connectDB = async () => {
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error(`❌ MongoDB Connection Error: ${err.message}`);
-    // Exit process with failure if DB connection fails
     process.exit(1);
   }
 };
 
 connectDB();
 
-// --- 4. Health Check & Base Routes ---
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', message: 'Server is healthy' });
 });
@@ -52,8 +49,6 @@ app.get('/', (req, res) => {
   res.send("Community Connect API is running...");
 });
 
-// --- 5. Global Error Handling Middleware ---
-// This prevents the server from leaking technical stack traces to the user
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
@@ -62,13 +57,11 @@ app.use((err, req, res, next) => {
   });
 });
 
-// --- 6. Server Initialization ---
 const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on https://local-helper-bomy.onrender.com`); 
+  console.log(`🚀 Production Server running on port ${PORT}`); 
 });
 
-// Handle unhandled promise rejections (e.g. secret keys missing)
 process.on('unhandledRejection', (err, promise) => {
   console.log(`Logged Error: ${err}`);
   server.close(() => process.exit(1));

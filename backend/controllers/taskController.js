@@ -34,13 +34,13 @@ const sendAcceptanceEmail = async (seekerEmail, seekerName, taskTitle, providerN
 
 // --- Controller Functions ---
 
-// 1. Create Task
+// 1. Create Task (Fixed structural payload properties alignment)
 const createTask = async (req, res) => {
   try {
     const { title, description, longitude, latitude, address } = req.body;
 
     if (!longitude || !latitude) {
-      return res.status(400).json({ message: "Please select a location on the map." });
+      return res.status(400).json({ message: "Geospatial coordinate arrays are missing. Please locate position parameters." });
     }
 
     const ln = parseFloat(longitude);
@@ -50,10 +50,10 @@ const createTask = async (req, res) => {
       title,
       description,
       address,
-      postedBy: req.user._id, 
+      postedBy: req.user._id, // References active session owner
       location: {
         type: 'Point',
-        coordinates: [ln, lt]
+        coordinates: [ln, lt] // Maps longitude first, latitude second tracking layout
       }
     });
 
@@ -210,7 +210,7 @@ const rateTask = async (req, res) => {
   }
 };
 
-// 10. Provider Stats Aggregation — FIXED HYBRID LOOKUP METHOD
+// 10. Provider Stats Aggregation
 const getProviderStats = async (req, res) => {
   try {
     const rawId = req.params.userId || req.user?._id;
@@ -219,11 +219,9 @@ const getProviderStats = async (req, res) => {
       return res.status(400).json({ message: "Provider Identification ID is missing." });
     }
 
-    // Convert to explicit clean string first to scrub off native Mongoose wrapper types
     const cleanedStringId = rawId.toString();
     const targetedObjectId = new mongoose.Types.ObjectId(cleanedStringId);
 
-    // Run primary mathematical aggregation 
     let stats = await Task.aggregate([
       { 
         $match: { 
@@ -241,7 +239,6 @@ const getProviderStats = async (req, res) => {
       }
     ]);
 
-    // Fallback Method: Standard collection filtering if pipeline types mismatch
     if (stats.length === 0) {
       const fallbackDocs = await Task.find({
         acceptedBy: targetedObjectId,
@@ -271,7 +268,6 @@ const getProviderStats = async (req, res) => {
       return res.status(200).json({ averageRating: 0, totalReviews: 0 });
     }
 
-    // Force formatting to match your front-end expectations (1 decimal spot precision)
     if (stats[0] && stats[0].averageRating) {
       stats[0].averageRating = parseFloat(stats[0].averageRating.toFixed(1));
     }
