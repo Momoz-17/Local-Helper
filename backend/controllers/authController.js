@@ -8,26 +8,25 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   host: 'smtp.gmail.com',
   port: 587,
-  secure: false, 
+  secure: false, // Upgrades to secure TLS connection automatically via STARTTLS
   auth: {
     user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS 
+    pass: process.env.EMAIL_PASS // Your 16-character Google App Password (no spaces)
   },
   tls: {
+    // Prevents local machine network SSL certificate blocks from failing email dispatch
     rejectUnauthorized: false
   }
 });
 
-// ✅ FIXED: Set cross-site production properties for Render domains
+// Helper function to set the secure cookie
 const setTokenCookie = (res, userId) => {
   const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, { expiresIn: '1d' });
   
-  const isProduction = process.env.NODE_ENV === 'production' || true; // Set to true explicitly for cross-domain staging
-  
   res.cookie('token', token, {
     httpOnly: true, 
-    secure: true, // Must be true over HTTPS/Render
-    sameSite: 'none', // Must be 'none' to travel across different domain handles
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: 'lax', 
     maxAge: 86400000 
   });
 };
@@ -67,6 +66,7 @@ exports.register = async (req, res) => {
 
     await user.save();
 
+    // Dispatches OTP directly to user inbox
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: cleanEmail,
@@ -123,11 +123,13 @@ exports.login = async (req, res) => {
     const cleanEmail = email.trim().toLowerCase();
     const user = await User.findOne({ email: cleanEmail });
 
+    // Explicit validation check separates users not found from those who are unverified
     if (!user) return res.status(404).json({ message: "User account not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
+    // Triggers custom 403 response catch block on the frontend to redirect seamlessly
     if (!user.isVerified) {
       return res.status(403).json({ 
         isVerified: false, 
@@ -156,12 +158,13 @@ exports.login = async (req, res) => {
 exports.logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    sameSite: 'none', // ✅ Update to none to match login parameters
-    secure: true
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
   });
   res.status(200).json({ message: "Logged out successfully" });
 };
 
+// 5. GET CURRENT USER
 exports.getMe = async (req, res) => {
   try {
     if (!req.user) return res.status(401).json({ message: "User not found" });
