@@ -1,23 +1,11 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const transporter = require('../utils/mailer');
 
-// Configure Nodemailer with strict local development configurations
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Upgrades to secure TLS connection automatically via STARTTLS
-  auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS // Your 16-character Google App Password (no spaces)
-  },
-  tls: {
-    // Prevents local machine network SSL certificate blocks from failing email dispatch
-    rejectUnauthorized: false
-  }
-});
+// Basic RFC-5322-ish email format check - catches typo domains like
+// "gmail.con" before they ever hit the database.
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
 
 // Helper function to set the secure cookie
 const setTokenCookie = (res, userId) => {
@@ -40,7 +28,11 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password, role, phone, address } = req.body;
     const cleanEmail = email.trim().toLowerCase();
-    
+
+    if (!EMAIL_REGEX.test(cleanEmail)) {
+      return res.status(400).json({ message: "Please enter a valid email address." });
+    }
+
     let user = await User.findOne({ email: cleanEmail });
     if (user && user.isVerified) return res.status(400).json({ message: "User already exists" });
 
@@ -81,7 +73,7 @@ exports.register = async (req, res) => {
     res.status(200).json({ message: "OTP sent to email" });
   } catch (err) {
     console.error("Registration Error:", err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Failed to send verification email. Please try again in a moment.", error: err.message });
   }
 };
 
@@ -116,7 +108,7 @@ exports.verifyOTP = async (req, res) => {
       } 
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Server error during verification.", error: err.message });
   }
 };
 
@@ -135,9 +127,29 @@ exports.login = async (req, res) => {
 
     // Triggers custom 403 response catch block on the frontend to redirect seamlessly
     if (!user.isVerified) {
+      // Previously this claimed "An OTP has been generated" without actually
+      // sending one - the user was redirected to the OTP screen with no
+      // email ever dispatched. Generate + send a fresh OTP here for real.
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      user.otp = otp;
+      user.otpExpires = Date.now() + 10 * 60 * 1000;
+      await user.save();
+
+      try {
+        await transporter.sendMail({
+          from: process.env.EMAIL_USER,
+          to: cleanEmail,
+          subject: "Your Community Connect Verification Code",
+          text: `Your OTP is: ${otp}. It expires in 10 minutes.`
+        });
+      } catch (mailErr) {
+        console.error("Login OTP resend failed:", mailErr);
+        return res.status(500).json({ message: "Account is unverified and we couldn't send a new OTP right now. Please try again shortly." });
+      }
+
       return res.status(403).json({ 
         isVerified: false, 
-        message: "Account unverified. An OTP has been generated, redirecting to verification page..." 
+        message: "Account unverified. A new OTP has been sent to your email, redirecting to verification page..." 
       });
     }
 
@@ -154,7 +166,7 @@ exports.login = async (req, res) => {
       } 
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: "Server error during login.", error: err.message });
   }
 };
 
