@@ -5,7 +5,6 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const dns = require('dns');
 
-dns.setDefaultResultOrder('ipv4first'); // Ensures IPv4 is prioritized over IPv6 for DNS resolution
 dns.setServers(["1.1.1.1","8.8.8.8"]); // Use Cloudflare DNS for faster resolution
 
 const app = express();
