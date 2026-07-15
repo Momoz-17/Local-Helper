@@ -7,22 +7,60 @@ const PostTask = () => {
   const [formData, setFormData] = useState({ title: '', description: '', address: '' });
   const [coords, setCoords] = useState({ lat: null, lng: null });
   const [loading, setLoading] = useState(false);
+  // 'loading' | 'success' | 'error' - lets us tell the difference between
+  // "still waiting" and "permission denied / failed", so the user isn't
+  // stuck forever with no explanation and no way to recover.
+  const [locationStatus, setLocationStatus] = useState('loading');
+  const [locationErrorMsg, setLocationErrorMsg] = useState('');
   const navigate = useNavigate();
   const hasLatitude = coords.lat !== null && coords.lat !== undefined;
 
-  useEffect(() => {
+  const requestLocation = () => {
+    setLocationStatus('loading');
+    setLocationErrorMsg('');
+
+    if (!navigator.geolocation) {
+      setLocationStatus('error');
+      setLocationErrorMsg('Your browser does not support location access.');
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
-      (pos) => setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      (err) => console.error("Location tracking error:", err),
-      { enableHighAccuracy: true }
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocationStatus('success');
+      },
+      (err) => {
+        console.error("Location tracking error:", err);
+        setLocationStatus('error');
+        // err.code: 1 = permission denied, 2 = position unavailable, 3 = timeout
+        if (err.code === 1) {
+          setLocationErrorMsg('Location access was denied. Please allow location access for this site in your browser settings, then click Retry.');
+        } else if (err.code === 3) {
+          setLocationErrorMsg('Location request timed out. Check that location services are turned on for your device/browser, then click Retry.');
+        } else {
+          setLocationErrorMsg('Could not determine your location. Check that location services are enabled, then click Retry.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
+  };
+
+  useEffect(() => {
+    requestLocation();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (formData.title.length < 5) return alert("Title must be at least 5 characters long.");
-    if (!hasLatitude) return alert("Still acquiring precise GPS coordinate locking sequence...");
+    if (!hasLatitude) {
+      return alert(
+        locationStatus === 'error'
+          ? `Location is required to post a request. ${locationErrorMsg}`
+          : "Still acquiring precise GPS coordinate locking sequence... please wait a moment and try again."
+      );
+    }
 
     setLoading(true);
     try {
@@ -100,10 +138,21 @@ const PostTask = () => {
           </div>
 
           <div className="text-[11px] font-semibold text-slate-500 bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center gap-2 select-none">
-            <span className={hasLatitude ? "text-indigo-600 animate-pulse" : "text-slate-400"}>📍</span>
-            {hasLatitude ? (
+            <span className={hasLatitude ? "text-indigo-600 animate-pulse" : locationStatus === 'error' ? "text-red-500" : "text-slate-400"}>📍</span>
+            {locationStatus === 'success' && hasLatitude ? (
               <span className="font-mono tracking-tight text-slate-600">
                 Geospatial Lock Verified: <span className="text-indigo-600 font-bold">{coords.lat.toFixed(5)}° N</span>, <span className="text-indigo-600 font-bold">{coords.lng.toFixed(5)}° E</span>
+              </span>
+            ) : locationStatus === 'error' ? (
+              <span className="flex items-center gap-2 flex-wrap">
+                <span className="text-red-500">{locationErrorMsg}</span>
+                <button
+                  type="button"
+                  onClick={requestLocation}
+                  className="underline font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+                >
+                  Retry
+                </button>
               </span>
             ) : (
               <span className="italic animate-pulse text-slate-400">Synchronizing satellite GPS coordinate array lock...</span>
